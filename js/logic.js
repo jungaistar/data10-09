@@ -15,7 +15,7 @@
   'use strict';
   /* 판(版) — index.html 의 ?v= · app.js 의 APP_VERSION 과 같아야 합니다(scripts/bump-version.mjs 로 함께 올림).
      브라우저가 옛 logic.js 와 새 app.js 를 섞어 쓰면 app.js 가 이 값을 보고 계산을 멈춥니다. */
-  var VERSION = '2026-10-28.2';
+  var VERSION = '2026-11-10.1';
 
   var SCHEMA_VERSION = 1;
 
@@ -1016,7 +1016,7 @@
       var d = wk.items.map(function (x) { return x.difficulty; });
       wk.focus = !d.length ? '복습·실습' : Math.max.apply(null, d) <= 1 ? '기초 업무' : Math.max.apply(null, d) === 2 ? '일상 핵심 업무' : '판단이 많은 업무';
     });
-    return { weeks: weeks, orientation: { title: '오리엔테이션 — 품질 문서 체계와 문서 맵', text: '품질매뉴얼 → 절차서 → 지침·양식 순서로 문서가 어떻게 이어지는지, 핵심 업무마다 어떤 문서를 보는지 문서 맵으로 봅니다.' }, perWeek: per };
+    return { weeks: weeks, orientation: { title: '오리엔테이션 — 품질 문서 체계', text: '품질매뉴얼 → 절차서 → 지침·양식 순서로 문서가 어떻게 이어지는지, 업무마다 어떤 문서를 보는지 봅니다.' }, perWeek: per };
   }
   function stepName(steps, to) {
     if (to === 'end') return '끝';

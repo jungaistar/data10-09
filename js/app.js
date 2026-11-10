@@ -1,4 +1,4 @@
-/* 품질 업무 프로세스·신입 교육 — 화면
+/* 품질 업무 자료 도우미 — 화면 (2026-11-10 메뉴 정리: ① 자료 등록하기 → ② 담당자에게 질문하기 → ③ AI 초안 작성 → ④ 문서로 내보내기 → ⑤ 신입 교육 자료 만들기)
    계산은 js/logic.js(QWLogic), 저장은 js/store.js, AI 연결은 js/ai-endpoint.js·ai-panel.js.
    뼈대(사이드 메뉴·가져오기·열 연결·AI 패널·내보내기)는 같은 과정의 data10-11 에서 가져왔습니다. */
 (function () {
@@ -6,7 +6,7 @@
   var L = window.QWLogic, S = window.QWStore, AIP = window.AIPanel, CQ = window.QWCapture;
   /* 판 맞추기 — 브라우저가 옛 logic.js 와 새 app.js 를 섞어 쓰면(Pages 캐시) 버튼과 결과가 어긋날 수 있어, 섞였으면 계산하지 않고 새로고침을 안내합니다.
      판은 scripts/bump-version.mjs 로 index.html(?v=) · logic.js 와 함께 올립니다. */
-  var APP_VERSION = '2026-10-28.2';
+  var APP_VERSION = '2026-11-10.1';
   if (!L || L.VERSION !== APP_VERSION || !CQ || CQ.VERSION !== APP_VERSION) {
     var m0 = document.getElementById('main') || document.body;
     m0.innerHTML = '<section class="card" id="versionMismatch"><h1>새 판이 나왔습니다 — 새로고침(Ctrl+F5)해 주세요</h1><p class="alert warn">이 브라우저가 옛 파일과 새 파일을 섞어 불러왔습니다(js/logic.js ' +
@@ -85,7 +85,7 @@
       h('p', null, what || '아직 가져온 업무 목록이 없습니다.'),
       h('p', null, '업무 목록 엑셀을 가져오거나, 가상 샘플(업무 52 · 문서 24 · 흐름도 3)로 먼저 둘러봐 주세요.'),
       h('div', { class: 'btn-row', style: 'justify-content:center' },
-        h('a', { class: 'btn btn-primary', href: '#/import' }, '업무 목록 가져오기로'),
+        h('a', { class: 'btn btn-primary', href: '#/work' }, '① 자료 등록하기로'),
         h('button', { type: 'button', class: 'btn', onclick: loadSample }, '샘플로 시작')));
   }
   function kindTag(k) { return k ? h('span', { class: 'tag kind-' + ({ '정형': 'formal', '비정형': 'informal', '형식': 'form' })[k] }, k) : h('span', { class: 'tag' }, '종류 미정'); }
@@ -168,14 +168,14 @@
     if (it && !r.tasks.length) { toast(it.fileName + ': 업무명을 하나도 읽지 못했습니다. 업무명 열을 확인해 주세요.', true); return; }
     var gone = [
       '업무 목록 ' + st.removed + '개' + (wasSample ? ' (가상 샘플)' : db.taskSource ? ' (' + db.taskSource.name + ')' : ''),
-      st.flows || st.lessons ? '1단계 업무 흐름도 ' + st.flows + '개 · 교육 한 장 ' + st.lessons + '개 (그 업무에 딸린 것)' : null,
-      st.core ? '핵심 업무 선택 ' + st.core + '개' : null,
+      st.flows || st.lessons ? '업무 흐름도 ' + st.flows + '개 · 교육 한 장 ' + st.lessons + '개 (그 업무에 딸린 것)' : null,
+      st.core ? '교육에 넣은 업무 ' + st.core + '개' : null,
       st.links ? '업무 ↔ 문서 연결 ' + st.links + '건' : null,
       wasSample ? '가상 문서 목록 ' + st.docs + '개' : null,
       wasSample ? '「가상 샘플」 표시(업무 목록 부분)' : null
     ].filter(Boolean);
     var stay = [
-      db.works.length ? '업무 자료화 ' + db.works.length + '개 — 자료 · 인터뷰 답변 · 말로 한 설명 · 초안 · 사진 모두 그대로' +
+      db.works.length ? '업무 자료화 ' + db.works.length + '개 — 자료 · 담당자 답변 · 말로 한 설명 · 초안 · 사진 모두 그대로' +
         (st.relinked ? ' · 새 목록의 같은 이름 업무에 다시 이음 ' + st.relinked + '개' : '') +
         (st.unlinked ? ' · 업무 목록과의 연결만 풀림 ' + st.unlinked + '개(업무 이름은 그대로)' : '') : '업무 자료화 — 아직 없음',
       !wasSample && db.docs.length ? '문서 목록 ' + db.docs.length + '개 — 새 업무의 「관련 문서」 칸으로 다시 이음' : null,
@@ -245,7 +245,7 @@
   }
   /* 샘플 — 1단계 가상 업무 52 · 문서 24 · 흐름도 3 + 업무 자료화 한 바퀴(「수입검사 부적합품 처리」). target: 넘어갈 화면 */
   function loadSample(target) {
-    target = typeof target === 'string' ? target : '#/core';
+    target = typeof target === 'string' ? target : '#/work';
     if ((db.tasks.length && !db.sample || db.works.length && !db.sample) && !confirm('지금 데이터를 지우고 가상 샘플을 불러올까요? 먼저 설정에서 JSON 백업을 받아 두면 안전합니다.')) return;
     // 앱이 실제 파일을 읽을 때와 같은 길로 — 엑셀 통합문서로 만들었다가 다시 읽습니다
     db = window.QWSample.buildDb(L, { taskAoa: roundTrip(window.QWSample.taskAoa(), '업무 목록'), docAoa: roundTrip(window.QWSample.docAoa(), '문서 목록') });
@@ -737,10 +737,15 @@
           } }, '이 표로 바꾸기 (' + res.steps.length + '단계)'))] : null) : null);
   }
 
-  /* ── ④ 신입 교육 ────────────────────────── */
+  /* ── ⑤ 신입 교육 자료 만들기 ────────────────────────── */
   function pageEdu() {
-    var head = pageHead('④', '신입 교육', '핵심 업무를 난이도와 순서대로 주차에 배치하고, 업무마다 한 장짜리 교육 자료(목적 · 흐름도 · 핵심 포인트 · 자주 하는 실수 · 확인 퀴즈 3문항)를 만듭니다.');
-    if (!db.tasks.length) return [head, emptyNotice()];
+    var head = pageHead('⑤', '신입 교육 자료 만들기', '④ 문서로 내보내기에서 보낸 초안의 흐름으로 업무마다 한 장짜리 교육 자료(목적 · 흐름도 · 핵심 포인트 · 자주 하는 실수 · 확인 퀴즈 3문항)를 만들고, 교육에 넣은 업무를 난이도와 순서대로 주차에 배치합니다.');
+    if (!db.tasks.length) return [head, h('section', { class: 'card empty' },
+      h('p', null, '아직 교육 자료로 보낸 업무가 없습니다.'),
+      h('p', null, '③ AI 초안 작성에서 초안을 만들고 담당자 확인을 받은 뒤, ④ 문서로 내보내기의 「⑤ 신입 교육 자료로 보내기」를 눌러 주세요.'),
+      h('div', { class: 'btn-row', style: 'justify-content:center' },
+        h('a', { class: 'btn btn-primary', href: '#/export' }, '④ 문서로 내보내기로'),
+        h('button', { type: 'button', class: 'btn', onclick: function () { loadSample('#/edu'); } }, '샘플로 해 보기')))];
     var cur = L.curriculum(db), s = settings();
     var weeksIn = h('input', { type: 'number', min: 1, max: 26, step: 1, value: s.weeks, inputmode: 'numeric', 'aria-label': '교육 기간(주)' });
     weeksIn.addEventListener('change', function () { db.settings = L.cleanSettings(Object.assign({}, db.settings, { weeks: Number(weeksIn.value) })); save(); render(); });
@@ -748,8 +753,8 @@
         h('div', { class: 'btn-row no-print' }, h('label', { class: 'field inline' }, h('span', null, '기간(주)'), weeksIn),
           h('button', { type: 'button', class: 'btn', onclick: function () { printSection(document.getElementById('curCard')); } }, '인쇄'),
           h('button', { type: 'button', class: 'btn', onclick: function () { XLSX.writeFile(xlsxBook([['커리큘럼', curriculumAoa(cur)]]), '신입교육_커리큘럼_' + today() + '.xlsx'); } }, '엑셀로'))),
-      h('p', { class: 'note' }, '난이도 쉬움 → 보통 → 어려움 순으로, 같은 난이도는 ① 화면의 핵심 업무 순서대로 주차에 나눕니다(주당 ' + cur.perWeek + '개). 난이도는 ① 화면 표에서 바꿉니다.'),
-      !db.core.length ? h('p', { class: 'alert warn' }, '핵심 업무가 없습니다. ① 화면에서 먼저 골라 주세요.') : null,
+      h('p', { class: 'note' }, '교육에 넣은 업무를 난이도 쉬움 → 보통 → 어려움 순으로, 같은 난이도는 넣은 순서대로 주차에 나눕니다(주당 ' + cur.perWeek + '개). 난이도와 「교육에 넣기」는 아래 「교육 한 장 만들기」에서 바꿉니다.'),
+      !db.core.length ? h('p', { class: 'alert warn' }, '교육에 넣은 업무가 없습니다. ④ 문서로 내보내기에서 보내거나, 아래에서 업무를 골라 「교육에 넣기」를 눌러 주세요.') : null,
       h('div', { class: 'weeks' }, cur.weeks.map(function (w) {
         return h('div', { class: 'week' }, h('h3', null, w.week + '주차', h('span', { class: 'sub' }, w.focus)),
           h('ol', null, w.week === 1 ? h('li', { class: 'orient' }, h('strong', null, cur.orientation.title), h('span', { class: 'sub' }, cur.orientation.text)) : null,
@@ -778,13 +783,20 @@
   function lessonEditor(t) {
     var l = db.lessons[t.id], f = db.flows[t.id];
     var picker = fld('업무', taskPicker(t.id, function (v) { ui.eduTask = v; ui.aiLessonAnswer = ''; render(); setTimeout(function () { var x = document.getElementById('lessonCard'); if (x) x.scrollIntoView(); }, 30); }, '교육 한 장 업무'));
-    var card = h('section', { class: 'card no-print', id: 'lessonCard' }, h('h2', null, '교육 한 장 만들기'), h('div', { class: 'filters' }, picker));
+    var diffSel = h('select', { 'aria-label': '난이도' }, [1, 2, 3].map(function (k) { var o = h('option', { value: String(k) }, L.DIFF_LABEL[k]); if ((t.difficulty || 2) === k) o.selected = true; return o; }));
+    diffSel.addEventListener('change', function () { t.difficulty = Number(diffSel.value); save(); render(); });
+    var inCore = db.core.indexOf(t.id) >= 0;
+    var coreBtn = h('button', { type: 'button', class: 'btn btn-sm' + (inCore ? '' : ' btn-primary'), id: 'coreToggle', onclick: function () {
+      if (inCore) db.core = db.core.filter(function (x) { return x !== t.id; }); else db.core.push(t.id);
+      save(); render(); toast(inCore ? '「' + t.name + '」을(를) 커리큘럼에서 뺐습니다.' : '「' + t.name + '」을(를) 커리큘럼에 넣었습니다.');
+    } }, inCore ? '커리큘럼에서 빼기' : '교육에 넣기');
+    var card = h('section', { class: 'card no-print', id: 'lessonCard' }, h('h2', null, '교육 한 장 만들기'), h('div', { class: 'filters' }, picker, fld('난이도', diffSel), h('div', { class: 'field' }, h('span', null, '커리큘럼'), coreBtn)));
     if (!l) {
       add(card, [h('p', null, '「' + t.name + '」의 교육 한 장이 아직 없습니다.'),
-        !(f && f.steps.length) ? h('p', { class: 'alert info' }, '흐름도가 있으면 판단 갈림 · 산출 문서 · 담당 같은 사실로 핵심 포인트와 확인 퀴즈 초안을 만듭니다. ③ 화면에서 단계 표를 먼저 적으면 좋습니다.') : null,
+        !(f && f.steps.length) ? h('p', { class: 'alert info' }, '흐름도가 있으면 판단 갈림 · 산출 문서 · 담당 같은 사실로 핵심 포인트와 확인 퀴즈 초안을 만듭니다. ④ 문서로 내보내기에서 이 업무의 초안 흐름을 먼저 보내면 좋습니다.') : null,
         h('div', { class: 'btn-row' },
           h('button', { type: 'button', class: 'btn btn-primary', onclick: function () { var d = L.draftLesson(t, f, db.docs); d.updated = today(); db.lessons[t.id] = L.cleanLesson(d); save(); render(); toast('흐름도 사실로 초안을 만들었습니다. 「자주 하는 실수」는 현장 경험으로 채워 주세요.'); } }, f && f.steps.length ? '흐름도로 초안 만들기' : '빈 양식으로 시작'),
-          f && f.steps.length ? null : h('a', { class: 'btn', href: '#/flow', onclick: function () { ui.flowTask = t.id; } }, '흐름도 먼저 만들기'))]);
+          f && f.steps.length ? null : h('a', { class: 'btn', href: '#/export' }, '④ 문서로 내보내기에서 흐름 보내기'))]);
       return card;
     }
     function saveL() { l.updated = today(); db.lessons[t.id] = L.cleanLesson(l); l = db.lessons[t.id]; save(); refreshPaper(); }
@@ -853,6 +865,7 @@
     var t = taskById(ui.eduTask); b.innerHTML = ''; b.appendChild(lessonPaper(t)); fillPaperFlow(t);
   }
   function fillPaperFlow(t) {
+    if (!t) return; // 업무 목록이 비어 ⑤ 화면이 빈 안내만 그린 때
     var pf = document.querySelector('.paper-flow'), f = db.flows[t.id];
     if (pf && f && f.steps.length) pf.innerHTML = L.flowSvg(L.layoutFlow(f.steps), {});
   }
@@ -868,7 +881,7 @@
       (f && f.steps.length ? '<table><tr><th>순서</th><th>단계</th><th>담당</th><th>입력 문서</th><th>산출 문서</th><th>갈림</th></tr>' + f.steps.map(function (s, i) {
         var tg = L.stepTargets(f.steps, i), br = s.question ? '예 → ' + L.stepName(f.steps, tg[0].to) + ' / 아니오 → ' + (tg[1].to == null ? '-' : L.stepName(f.steps, tg[1].to)) : (tg[0].to === 'end' ? '끝' : tg[0].to !== i + 2 ? '→ ' + L.stepName(f.steps, tg[0].to) : '');
         return '<tr><td>' + (i + 1) + '</td><td>' + e(s.question ? '[판단] ' + s.question : s.name) + '</td><td>' + e(s.role) + '</td><td>' + e(s.inputs) + '</td><td>' + e(s.outputs) + '</td><td>' + e(br) + '</td></tr>';
-      }).join('') + '</table><p class="meta">흐름도 그림은 ③ 업무 흐름도 화면에서 PNG 로 받아 이 자리에 붙일 수 있습니다.</p>' : '<p>(흐름도 없음)</p>') +
+      }).join('') + '</table><p class="meta">흐름도 그림은 ④ 문서로 내보내기 화면의 「흐름도 PNG」로 받아 이 자리에 붙일 수 있습니다.</p>' : '<p>(흐름도 없음)</p>') +
       '<h2>3. 핵심 포인트</h2><ul>' + l.points.map(function (p) { return '<li>' + e(p) + '</li>'; }).join('') + '</ul>' +
       '<h2>4. 자주 하는 실수</h2><ul>' + l.mistakes.map(function (p) { return '<li>' + e(p) + '</li>'; }).join('') + '</ul>' +
       (linked.length ? '<h2>5. 함께 볼 문서</h2><p>' + linked.map(function (d) { return e((d.code ? d.code + ' ' : '') + d.name); }).join(', ') + '</p>' : '') +
@@ -896,7 +909,7 @@
     }
     return h('section', { class: 'card no-print' }, h('h2', null, 'AI 로 교육 한 장 초안 (반자동)'),
       h('p', { class: 'note' }, '단계 표와 관련 문서 이름만 담은 프롬프트입니다. AI 답의 목적 · 핵심 포인트 · 자주 하는 실수 · 퀴즈를 읽어 위 칸에 넣습니다(빈 칸은 그대로 둠). 숫자 · 기준값 · 조항 번호는 반드시 원문 문서와 대조해 주세요.'),
-      !(f && f.steps.length) ? h('p', { class: 'alert info' }, '흐름도가 없으면 AI 에 줄 사실이 업무명 · 주기뿐입니다. ③ 화면에서 단계 표를 먼저 적는 것을 권합니다.') : null,
+      !(f && f.steps.length) ? h('p', { class: 'alert info' }, '흐름도가 없으면 AI 에 줄 사실이 업무명 · 주기뿐입니다. ④ 문서로 내보내기에서 이 업무의 초안 흐름을 먼저 보내는 것을 권합니다.') : null,
       h('details', null, h('summary', null, '프롬프트 보기'), box),
       h('div', { class: 'btn-row', style: 'margin:10px 0' },
         h('button', { type: 'button', class: 'btn btn-primary', onclick: function () { copyText(prompt); } }, '프롬프트 복사'),
@@ -907,8 +920,10 @@
   }
 
   /* ══ 업무 경험 수집 · AI 업무 자료화 (2026-10-28 방향 수정) ═══════════
-     ① 업무 고르기 · 자료 넣기 → ② 담당자 인터뷰 → ③ 초안 만들기(AI) → ④ 내보내기.
-     계산 · 검사는 js/capture.js(QWCapture), 사진은 js/store.js 의 QWImages(IndexedDB). 기존 1단계 화면은 「기존 도구」 메뉴로 그대로 둡니다. */
+     ① 자료 등록하기 → ② 담당자에게 질문하기 → ③ AI 초안 작성 → ④ 문서로 내보내기 → ⑤ 신입 교육 자료 만들기.
+     계산 · 검사는 js/capture.js(QWCapture), 사진은 js/store.js 의 QWImages(IndexedDB).
+     2026-11-10 요청으로 1단계 화면 4개(업무 목록 가져오기 · 핵심 업무 선정 · 문서 맵 · 업무 흐름도)는 메뉴에서 뺐습니다(신규 기능과 겹침).
+     화면 코드와 저장된 자료는 그대로 두고, 주소(#/import 등)로만 열립니다. */
   var C = window.QWCapture, IMG = window.QWImages;
   function curWork() {
     var w = db.works.filter(function (x) { return x.id === db.curWork; })[0] || db.works[0] || null;
@@ -937,18 +952,18 @@
           h('span', { class: 'tag' + (p.answered ? ' ok' : '') }, '답변 ' + p.answered + '/' + p.questions + (p.transcripts ? ' · 설명 ' + p.transcripts : '')),
           h('span', { class: 'tag' + (p.versions ? ' ok' : '') }, p.versions ? '초안 v' + w.current + ' · 단계 ' + p.steps : '초안 없음'),
           p.steps ? h('span', { class: 'tag' + (p.confirmed === p.steps ? ' ok' : '') }, '담당자 확인 ' + p.confirmed + '/' + p.steps) : null)),
-        t ? h('div', { class: 'field' }, h('span', null, '업무 목록(1단계)'), h('div', null, (t.cycle || '주기 미상') + ' · 1회 ' + (t.hours || '미상') + ' · ' + (t.role || '직책 미상'))) : null));
+        t ? h('div', { class: 'field' }, h('span', null, '업무 목록'), h('div', null, (t.cycle || '주기 미상') + ' · 1회 ' + (t.hours || '미상') + ' · ' + (t.role || '직책 미상'))) : null));
   }
   function nextLink(href, label) { return h('div', { class: 'btn-row next-row no-print' }, h('a', { class: 'btn btn-primary btn-big', href: href }, label)); }
 
-  /* ── ① 업무 고르기 · 자료 넣기 ─────────── */
+  /* ── ① 자료 등록하기 ─────────── */
   function loadNotice() {
     var n = S.loadNotice();
     if (!n || ui.noticeClosed) return null;
     var close = h('button', { type: 'button', class: 'btn btn-sm', onclick: function () { ui.noticeClosed = true; render(); } }, '닫기');
     if (n === 'upgraded') return h('section', { class: 'card notice', id: 'upgradeNotice' }, h('h2', null, '도구가 새 방향으로 바뀌었습니다 (2026-10-28)'),
-      h('p', null, '과제 방향이 「업무 경험 수집 및 AI 기반 디지털 업무 자료화」로 바뀌어, 첫 화면이 「업무 하나 → 자료 · 담당자 경험 → AI 초안 → 업무 방법서」 순서가 되었습니다.'),
-      h('p', null, '전에 넣은 업무 목록 · 문서 목록 · 흐름도 · 교육 자료는 지우지 않았습니다. 왼쪽 메뉴 「기존 도구(1단계)」에서 그대로 볼 수 있고, 아래에서 업무 목록의 업무를 골라 자료화를 시작할 수 있습니다.'), close);
+      h('p', null, '과제 방향이 「업무 경험 수집 및 AI 기반 디지털 업무 자료화」로 바뀌어, 첫 화면이 「자료 등록하기 → 담당자에게 질문하기 → AI 초안 작성 → 문서로 내보내기」 순서가 되었습니다.'),
+      h('p', null, '전에 넣은 업무 목록 · 문서 목록 · 흐름도 · 교육 자료는 지우지 않았습니다. 업무 목록은 아래에서 골라 자료화를 시작할 수 있고, 흐름도 · 교육 자료는 왼쪽 메뉴 「⑤ 신입 교육 자료 만들기」에서 이어 씁니다.'), close);
     if (n === 'broken') return h('section', { class: 'card notice warn', id: 'brokenNotice' }, h('h2', null, '저장된 자료를 읽지 못해 새로 시작했습니다'),
       h('p', null, '이 브라우저에 저장된 자료가 망가져 있어(저장 중 끊김 등) 열 수 없었습니다. 옛 자료는 지우지 않고 따로 남겨 두었습니다.'),
       h('div', { class: 'btn-row' },
@@ -957,19 +972,20 @@
     return null;
   }
   function pageWork() {
-    var out = [pageHead('①', '업무 고르기 · 자료 넣기', '자료화할 업무 하나를 고르고, 지금 있는 업무 자료와 화면 캡처 · 사진을 넣습니다. 파일은 서버로 보내지 않고 이 브라우저 안에서만 읽고 저장합니다.'), loadNotice()];
+    var out = [pageHead('①', '자료 등록하기', '자료화할 업무 하나를 고르고, 지금 있는 업무 자료와 화면 캡처 · 사진을 넣습니다. 파일은 서버로 보내지 않고 이 브라우저 안에서만 읽고 저장합니다.'), loadNotice()];
     out.push(h('section', { class: 'card' }, h('h2', null, '일하는 순서'),
       h('ol', { class: 'steps' },
-        h('li', null, h('strong', null, '업무 고르기 · 자료 넣기'), ' — 절차서 · 지침서 · 체크리스트 · 기록 양식 · 시스템 입력 항목 · 업무 순서 자료(붙여 넣기 · txt · docx · xlsx), 캡처 · 사진'),
-        h('li', null, h('a', { href: '#/interview' }, '② 담당자 인터뷰'), ' — 기본 질문지 + 자료를 읽고 AI 가 뽑은 질문(문서와 실제가 다른 곳)에 담당자가 답하기, 말로 한 설명 붙여 넣기. 여러 번에 나눠 채워도 됩니다'),
-        h('li', null, h('a', { href: '#/draft' }, '③ 초안 만들기'), ' — 자료 + 답변을 묶은 프롬프트를 회사가 허용한 AI 에 넣고, 답(JSON)을 붙여 넣으면 흐름도와 단계별 업무 방법서가 됩니다. 단계마다 근거(문서 · 담당자 답변 · AI 추정)와 「담당자 확인」 표시'),
-        h('li', null, h('a', { href: '#/export' }, '④ 내보내기'), ' — Word 업무 방법서 · Excel 단계표 · 인수인계 체크리스트 · 1장 요약 · 인쇄')),
+        h('li', null, h('strong', null, '자료 등록하기'), ' — 업무 하나를 고르고 절차서 · 지침서 · 체크리스트 · 기록 양식 · 시스템 입력 항목 · 업무 순서 자료(붙여 넣기 · txt · docx · xlsx), 캡처 · 사진'),
+        h('li', null, h('a', { href: '#/interview' }, '② 담당자에게 질문하기'), ' — 기본 질문지 + 자료를 읽고 AI 가 뽑은 질문(문서와 실제가 다른 곳)에 담당자가 답하기, 말로 한 설명 붙여 넣기. 여러 번에 나눠 채워도 됩니다'),
+        h('li', null, h('a', { href: '#/draft' }, '③ AI 초안 작성'), ' — 자료 + 답변을 묶은 프롬프트를 회사가 허용한 AI 에 넣고, 답(JSON)을 붙여 넣으면 흐름도와 단계별 업무 방법서가 됩니다. 단계마다 근거(문서 · 담당자 답변 · AI 추정)와 「담당자 확인」 표시'),
+        h('li', null, h('a', { href: '#/export' }, '④ 문서로 내보내기'), ' — Word 업무 방법서 · Excel 단계표 · 인수인계 체크리스트 · 1장 요약 · 인쇄'),
+        h('li', null, h('a', { href: '#/edu' }, '⑤ 신입 교육 자료 만들기'), ' — 확인한 초안의 흐름으로 업무마다 교육 한 장(목적 · 흐름도 · 핵심 포인트 · 자주 하는 실수 · 확인 퀴즈)과 주차별 커리큘럼')),
       h('div', { class: 'btn-row' }, h('button', { type: 'button', class: 'btn btn-primary', onclick: function () { loadSample('#/work'); } }, '샘플로 해 보기(가상 「수입검사 부적합품 처리」)'))));
     out.push(newWorkCard());
     if (ui.pend.task && ui.pend.task.from === 'work') out.push(pendingCard(ui.pend.task));
     var w = curWork();
     if (!w) return out;
-    out.push(workBar(w), materialsCard(w), imagesCard(w), nextLink('#/interview', '② 담당자 인터뷰로'));
+    out.push(workBar(w), materialsCard(w), imagesCard(w), nextLink('#/interview', '② 담당자에게 질문하기로'));
     return out;
   }
   function newWorkCard() {
@@ -977,7 +993,7 @@
     var owner = h('input', { placeholder: '예: 검사원 ○○○ (선택)', autocomplete: 'off' });
     var taskSel = null;
     if (db.tasks.length) {
-      taskSel = h('select', { 'aria-label': '업무 목록에서 고르기' }, h('option', { value: '' }, '— 업무 목록(1단계)에서 고르기 —'), db.tasks.map(function (t) { return h('option', { value: t.id }, t.name + (t.role ? ' · ' + t.role : '')); }));
+      taskSel = h('select', { 'aria-label': '업무 목록에서 고르기' }, h('option', { value: '' }, '— 업무 목록에서 고르기 —'), db.tasks.map(function (t) { return h('option', { value: t.id }, t.name + (t.role ? ' · ' + t.role : '')); }));
       taskSel.addEventListener('change', function () { var t = taskById(taskSel.value); if (t) { name.value = t.name; if (!owner.value) owner.value = t.role || ''; } });
     }
     var fileIn = h('input', { type: 'file', accept: '.xlsx,.xlsm,.xls,.csv', 'aria-label': '업무 목록 파일로 바꾸기' });
@@ -988,7 +1004,7 @@
       h('span', { class: 'note' }, 'xlsx · xls · csv — 업무명 열만 있으면 됩니다(지금 목록에 합치지 않고 바꿈)'));
     var selHint = db.taskSource ? '「' + db.taskSource.name + '」에서 넣은 업무 ' + db.tasks.length + '가지'
       : db.sample ? '가상 샘플 업무 목록 ' + db.tasks.length + '가지 — 내 업무 목록은 아래 「업무 목록 파일로 바꾸기」'
-      : '1단계에서 넣은 업무 목록 ' + db.tasks.length + '가지';
+      : '전에 넣은 업무 목록 ' + db.tasks.length + '가지';
     function create() {
       var n = name.value.trim();
       if (!n) { toast('업무 이름을 적어 주세요.', true); name.focus(); return; }
@@ -1013,7 +1029,7 @@
       h('datalist', { id: 'taskNames' }, db.tasks.map(function (t) { return h('option', { value: t.name }); })),
       h('div', { class: 'form-grid', style: 'margin-top:12px' },
         taskSel ? h('div', { class: 'field' }, fld('업무 목록에서 고르기', taskSel, selHint), listTools) : h('div', { class: 'field' }, h('span', null, '업무 목록(선택)'), listTools),
-        fld('업무 이름', name), fld('담당자(선택)', owner, '인터뷰할 사람 · 직책')),
+        fld('업무 이름', name), fld('담당자(선택)', owner, '질문할 사람 · 직책')),
       h('div', { class: 'btn-row', style: 'margin-top:10px' }, h('button', { type: 'button', class: 'btn' + (db.works.length ? '' : ' btn-primary'), onclick: create }, '이 업무로 시작')));
   }
   /* txt 는 UTF-8 이 아니면 EUC-KR(한글 윈도 메모장)로 읽음 */
@@ -1060,9 +1076,9 @@
     drop.addEventListener('drop', function (e) { e.preventDefault(); drop.classList.remove('over'); readMaterialFiles(e.dataTransfer.files, w); });
     var t = workTask(w), f = t && db.flows[t.id];
     var fromFlow = f && f.steps.length ? h('button', { type: 'button', class: 'btn', onclick: function () {
-      var m = C.addMaterial(w, { name: '1단계 흐름도 단계 표 — ' + t.name, kind: '업무 순서 자료', text: C.flowToMaterialText(t, f), from: '1단계 업무 흐름도' }, today());
-      save(); render(); toast(m.id + ' 로 1단계 흐름도를 넣었습니다.');
-    } }, '1단계에서 만든 흐름도를 자료로 넣기') : null;
+      var m = C.addMaterial(w, { name: '전에 만든 흐름도 단계 표 — ' + t.name, kind: '업무 순서 자료', text: C.flowToMaterialText(t, f), from: '전에 만든 업무 흐름도' }, today());
+      save(); render(); toast(m.id + ' 로 전에 만든 흐름도를 넣었습니다.');
+    } }, '전에 만든 흐름도를 자료로 넣기') : null;
     var items = w.materials.map(function (m) {
       var ta = h('textarea', { rows: 8, 'aria-label': m.id + ' 내용' }); ta.value = m.text;
       ta.addEventListener('change', function () { m.text = ta.value; w.updated = today(); save(); toast(m.id + ' 내용을 고쳤습니다.'); });
@@ -1126,13 +1142,13 @@
       })) : null);
   }
 
-  /* ── ② 담당자 인터뷰 ─────────────────── */
+  /* ── ② 담당자에게 질문하기 ─────────────────── */
   function pageInterview() {
-    var head = pageHead('②', '담당자 인터뷰', '문서에 없는 경험 · 판단 기준을 담당자에게 묻고 답을 적습니다. 한 번에 다 채우지 않아도 됩니다 — 답은 질문마다 저장되고, 다음에 이어서 채웁니다.');
+    var head = pageHead('②', '담당자에게 질문하기', '문서에 없는 경험 · 판단 기준을 담당자에게 묻고 답을 적습니다. 한 번에 다 채우지 않아도 됩니다 — 답은 질문마다 저장되고, 다음에 이어서 채웁니다.');
     var w = curWork();
     if (!w) return [head, noWork()];
     if (!w.questions.length) w.questions = C.templateQuestions([]);
-    return [head, workBar(w), answersCard(w), aiQuestionsCard(w), transcriptCard(w), questionSheet(w), nextLink('#/draft', '③ 초안 만들기로')];
+    return [head, workBar(w), answersCard(w), aiQuestionsCard(w), transcriptCard(w), questionSheet(w), nextLink('#/draft', '③ AI 초안 작성으로')];
   }
   function answersCard(w) {
     var p = C.progress(w), only = h('input', { type: 'checkbox' }); only.checked = !!ui.onlyOpen;
@@ -1214,7 +1230,7 @@
   }
   /* 인쇄용 질문지 — 화면에는 숨기고 「질문지 인쇄」 때만 보입니다 */
   function questionSheet(w) {
-    return h('section', { class: 'card print-sheet', id: 'qSheet', hidden: true }, h('h1', null, '담당자 인터뷰 질문지 — ' + w.name),
+    return h('section', { class: 'card print-sheet', id: 'qSheet', hidden: true }, h('h1', null, '담당자 질문지 — ' + w.name),
       h('p', { class: 'note' }, (w.owner ? '담당자: ' + w.owner + ' · ' : '') + '날짜: ' + today() + ' · 아는 만큼만 적어 주세요. 수치 · 예시 · 양식 위치가 있으면 함께 적어 주세요.'),
       C.CATS.map(function (c) {
         var qs = w.questions.filter(function (q) { return q.cat === c.id; }); if (!qs.length) return null;
@@ -1222,9 +1238,9 @@
       }));
   }
 
-  /* ── ③ 초안 만들기 ─────────────────── */
+  /* ── ③ AI 초안 작성 ─────────────────── */
   function pageDraft() {
-    var head = pageHead('③', '초안 만들기', '업무 자료와 담당자 답변을 묶어 AI 에 넣고, 돌아온 답으로 업무 흐름도와 단계별 업무 방법서 초안을 만듭니다. 단계마다 근거(문서 · 담당자 답변 · AI 추정)가 보이고, 담당자가 확인한 단계에 표시합니다.');
+    var head = pageHead('③', 'AI 초안 작성', '업무 자료와 담당자 답변을 묶어 AI 에 넣고, 돌아온 답으로 업무 흐름도와 단계별 업무 방법서 초안을 만듭니다. 단계마다 근거(문서 · 담당자 답변 · AI 추정)가 보이고, 담당자가 확인한 단계에 표시합니다.');
     var w = curWork();
     if (!w) return [head, noWork()];
     var out = [head, workBar(w), draftPromptCard(w)];
@@ -1240,7 +1256,7 @@
     ans.addEventListener('input', function () { ui.draftAnswer = ans.value; });
     function parse(text) { ui.draftAnswer = text; ui.draftParsed = C.parseDraftAnswer(text, w); render(); goTo('#/draft', 'draftParsed'); }
     var isSample = window.QWSampleCapture && w.name === window.QWSampleCapture.NAME;
-    var res = ui.draftParsed, note = h('input', { placeholder: '예: 10/28 인터뷰 2차 반영', 'aria-label': '판 메모' });
+    var res = ui.draftParsed, note = h('input', { placeholder: '예: 10/28 담당자 답변 2차 반영', 'aria-label': '판 메모' });
     return h('section', { class: 'card no-print', id: 'draftPrompt' }, h('h2', null, 'AI 에 넣을 프롬프트 → 답 붙여 넣기'),
       h('ol', { class: 'steps' }, h('li', null, '프롬프트를 복사해 회사가 허용한 AI 에 붙여 넣습니다(회사 자료를 외부 AI 에 넣어도 되는지 먼저 확인해 주세요).'),
         h('li', null, 'AI 답(JSON)을 아래에 붙여 넣고 「읽어서 확인」을 누릅니다.'), h('li', null, '확인 결과를 보고 「새 판으로 저장」 — 이전 판은 기록에 남습니다.')),
@@ -1297,7 +1313,7 @@
     });
     return h('section', { class: 'card draft-card', id: 'draftCard' },
       h('div', { class: 'card-head' }, h('h2', null, (d.title || w.name) + ' — 업무 방법서 초안 v' + v.v),
-        h('div', { class: 'btn-row no-print' }, h('button', { type: 'button', class: 'btn', onclick: function () { printSection(document.getElementById('draftCard')); } }, '인쇄 / PDF'), h('a', { class: 'btn', href: '#/export' }, '④ 내보내기'))),
+        h('div', { class: 'btn-row no-print' }, h('button', { type: 'button', class: 'btn', onclick: function () { printSection(document.getElementById('draftCard')); } }, '인쇄 / PDF'), h('a', { class: 'btn', href: '#/export' }, '④ 문서로 내보내기'))),
       h('p', { class: 'note' }, (v.at ? v.at + ' · ' : '') + (v.note ? v.note + ' · ' : '') + '단계 ' + d.steps.length + '개 · 담당자 확인 ' + d.steps.filter(function (s) { return s.confirmed; }).length + '개'),
       h('div', { class: 'legend basis-legend' }, basisTag('doc'), ' ' + c.doc, basisTag('person'), ' ' + c.person, basisTag('both'), ' ' + c.both, basisTag('guess'), ' ' + c.guess, c.guessFields ? h('span', null, ' · 칸 단위 AI 추정 ' + c.guessFields) : null),
       d.summary ? h('p', { class: 'summary' }, d.summary) : null,
@@ -1311,8 +1327,8 @@
       d.open_questions.length ? [h('h3', null, '더 확인할 것 (' + d.open_questions.length + ')'), h('ul', { class: 'open-q' }, d.open_questions.map(function (q) { return h('li', null, q); })),
         h('div', { class: 'btn-row no-print' }, h('button', { type: 'button', class: 'btn', onclick: function () {
           var add = C.addQuestions(w, d.open_questions.map(function (q) { return { text: q, cat: C.catId(q), why: 'v' + v.v + ' 초안의 「더 확인할 것」' }; }), '초안 v' + v.v);
-          save(); toast(add.length ? '인터뷰 질문 ' + add.length + '개로 보냈습니다. ② 에서 답을 받은 뒤 초안을 다시 만들어 주세요.' : '이미 질문에 있습니다.'); if (add.length) location.hash = '#/interview';
-        } }, '② 인터뷰 질문으로 보내기'))] : null);
+          save(); toast(add.length ? '담당자 질문 ' + add.length + '개로 보냈습니다. ② 에서 답을 받은 뒤 초안을 다시 만들어 주세요.' : '이미 질문에 있습니다.'); if (add.length) location.hash = '#/interview';
+        } }, '② 담당자 질문으로 보내기'))] : null);
   }
   function versionsCard(w) {
     return h('section', { class: 'card no-print', id: 'versions' }, h('h2', null, '판 기록 (' + w.versions.length + ')'),
@@ -1329,7 +1345,7 @@
     el.innerHTML = capFlowSvg(w, v);
   }
 
-  /* ── ④ 내보내기 ─────────────────────── */
+  /* ── ④ 문서로 내보내기 ─────────────────────── */
   function imagesFor(w, ids) {
     var o = {};
     return Promise.all(ids.map(function (id) { var p = w.images.filter(function (x) { return x.id === id; })[0]; return p ? IMG.get(p.key).then(function (u) { if (u) o[id] = u; }) : null; })).then(function () { return o; });
@@ -1344,11 +1360,11 @@
   }
   function wordDoc(name, html) { download(name, new Blob(['﻿' + html], { type: 'application/msword' })); }
   function pageExport() {
-    var head = pageHead('④', '내보내기', '확인한 초안을 신규 담당자 · 업무 대체자 · 관련 담당자에게 건넬 모양으로 받습니다.');
+    var head = pageHead('④', '문서로 내보내기', '확인한 초안을 신규 담당자 · 업무 대체자 · 관련 담당자에게 건넬 모양으로 받습니다.');
     var w = curWork();
     if (!w) return [head, noWork()];
     var v = C.currentVersion(w);
-    if (!v) return [head, workBar(w), h('section', { class: 'card empty' }, h('p', null, '아직 초안이 없습니다.'), h('a', { class: 'btn btn-primary', href: '#/draft' }, '③ 초안 만들기로'))];
+    if (!v) return [head, workBar(w), h('section', { class: 'card empty' }, h('p', null, '아직 초안이 없습니다.'), h('a', { class: 'btn btn-primary', href: '#/draft' }, '③ AI 초안 작성으로'))];
     var d = v.draft, base = safe(w.name) + '_v' + v.v, items = C.handoverChecklist(w, v), one = C.onePage(w, v), t = workTask(w);
     var unconfirmed = d.steps.filter(function (s) { return !s.confirmed; }).length;
     var buttons = h('section', { class: 'card no-print' }, h('h2', null, '받기 — v' + v.v + (v.at ? ' (' + v.at + ')' : '')),
@@ -1369,11 +1385,8 @@
         h('button', { type: 'button', class: 'btn', onclick: function () { download('업무흐름도_' + base + '.svg', new Blob([capFlowSvg(w, v)], { type: 'image/svg+xml' })); } }, '흐름도 SVG'),
         h('button', { type: 'button', class: 'btn', onclick: function () { svgToPng(capFlowSvg(w, v), '업무흐름도_' + base + '.png'); } }, '흐름도 PNG')),
 
-      t ? h('div', { class: 'btn-row', style: 'margin-top:12px' }, h('button', { type: 'button', class: 'btn', onclick: function () {
-        var f = db.flows[t.id];
-        if (f && f.steps.length && !confirm('1단계 「' + t.name + '」 흐름도(' + f.steps.length + '단계)를 이 초안의 흐름(' + d.flow.length + '칸)으로 바꿀까요?')) return;
-        db.flows[t.id] = { steps: d.flow.map(L.cleanStep), source: '업무 자료화 v' + v.v + ' 초안에서', updated: today() }; save(); toast('1단계 업무 흐름도로 보냈습니다. 「기존 도구 › 업무 흐름도」에서 고치고 교육 한 장으로 이어 쓸 수 있습니다.');
-      } }, '1단계 업무 흐름도 · 신입 교육으로 보내기'), h('span', { class: 'note' }, '업무 목록의 「' + t.name + '」과 이어져 있습니다.')) : null);
+      h('div', { class: 'btn-row', style: 'margin-top:12px' }, h('button', { type: 'button', class: 'btn', id: 'toEduBtn', onclick: function () { sendToEdu(w, v); } }, '⑤ 신입 교육 자료로 보내기'),
+        h('span', { class: 'note' }, t ? '업무 목록의 「' + t.name + '」과 이어져 있습니다. 이 초안의 흐름이 교육 한 장의 흐름도가 됩니다.' : '이 초안의 흐름이 교육 한 장의 흐름도가 됩니다(업무 목록에 「' + w.name + '」을 더해 이어 줍니다).')));
     var onePageEl = h('section', { class: 'card paper', id: 'onePage' }, h('div', { class: 'lesson-top' }, h('h1', null, one.title + ' — 1장 요약'), h('span', { class: 'note' }, one.meta)),
       one.summary ? h('p', null, one.summary) : null,
       h('div', { class: 'two-col' },
@@ -1387,6 +1400,24 @@
     var handoverEl = h('section', { class: 'card paper', id: 'handover' }, h('div', { class: 'lesson-top' }, h('h1', null, '인수인계 체크리스트 — ' + w.name), h('span', { class: 'note' }, '판 v' + v.v + ' · 받는 사람: ________ · 넘기는 사람: ________')),
       groups.map(function (g) { return [h('h2', null, g), h('ul', { class: 'ho-list' }, items.filter(function (i) { return i.group === g; }).map(function (i) { return h('li', null, h('span', { class: 'box', 'aria-hidden': 'true' }, '☐'), ' ', i.text); }))]; }));
     return [head, workBar(w), buttons, onePageEl, handoverEl];
+  }
+  /* ④ → ⑤ — 확인한 초안의 흐름을 신입 교육 자료의 흐름도로 보냅니다. 업무 목록과 이어지지 않은 업무는 같은 이름의 업무를 찾거나 새로 더해 잇고, 커리큘럼에 넣습니다. */
+  function sendToEdu(w, v) {
+    var d = v.draft, t = workTask(w) || db.tasks.filter(function (x) { return x.name === w.name; })[0];
+    if (!t) {
+      var nums = db.tasks.map(function (x) { var m = /^T(\d+)$/.exec(x.id); return m ? Number(m[1]) : 0; });
+      var n = (nums.length ? Math.max.apply(null, nums) : 0) + 1;
+      t = { id: 'T' + ('00' + n).slice(-3), no: '', category: '', name: w.name, cycle: '', hours: '', role: w.owner || '', docsText: '', newbie: null, customer: null, difficulty: null, missing: false };
+      db.tasks.push(t);
+    }
+    var f = db.flows[t.id];
+    if (f && f.steps.length && f.source !== '업무 자료화 v' + v.v + ' 초안에서' && !confirm('「' + t.name + '」의 교육용 흐름도(' + f.steps.length + '단계)를 이 초안의 흐름(' + d.flow.length + '칸)으로 바꿀까요?')) return;
+    w.taskId = t.id;
+    db.flows[t.id] = { steps: d.flow.map(L.cleanStep), source: '업무 자료화 v' + v.v + ' 초안에서', updated: today() };
+    if (db.core.indexOf(t.id) < 0) db.core.push(t.id);
+    ui.eduTask = t.id; save();
+    toast('「' + t.name + '」의 흐름을 신입 교육 자료로 보냈습니다. 교육 한 장 초안을 만들어 주세요.');
+    location.hash = '#/edu';
   }
   function onePageHtml(one) {
     var e = C.esc;
@@ -1418,14 +1449,11 @@
         save(); toast('백업을 불러왔습니다(업무 자료화 ' + db.works.length + ' · 업무 목록 ' + db.tasks.length + ' · 문서 ' + db.docs.length + ' · 사진 ' + Object.keys(imgs).length + ').'); render();
       }).catch(function (e) { toast('불러오지 못했습니다: ' + e.message, true); });
     });
-    return [pageHead('설정', '기준 · AI 연결 · 백업'),
-      h('section', { class: 'card' }, h('h2', null, '계산 기준'),
+    /* 2026-11-10 — 메뉴에서 뺀 1단계 화면(핵심 업무 점수 · 문서 맵)의 기준값은 화면에서 감추고 저장된 값은 그대로 둡니다 */
+    return [pageHead('설정', '교육 기간 · AI 연결 · 백업'),
+      h('section', { class: 'card' }, h('h2', null, '신입 교육 기준'),
         h('div', { class: 'form-grid' },
-          fld('「수시 · 발생 시」 업무를 1년에 몇 번으로', inp.irregularPerYear, '점수의 빈도에 씁니다(기본 12 = 한 달에 한 번 꼴)'),
-          fld('「매일」 = 1년 근무일', inp.workDays), fld('「1일」 = 몇 시간', inp.dayHours),
-          fld('핵심 업무 최소', inp.coreMin), fld('핵심 업무 최대', inp.coreMax), fld('추천 개수', inp.coreTarget),
-          fld('오래된 버전 기준(개월)', inp.staleMonths, '개정한 지 이만큼 지난 문서를 체크리스트에 올립니다'),
-          fld('신입 교육 기간(주)', inp.weeks)),
+          fld('신입 교육 기간(주)', inp.weeks, '⑤ 신입 교육 자료 만들기의 커리큘럼 주차 수')),
         h('div', { class: 'btn-row', style: 'margin-top:12px' },
           h('button', { type: 'button', class: 'btn btn-primary', onclick: saveS }, '저장'),
           h('button', { type: 'button', class: 'btn', onclick: function () { db.settings = L.cleanSettings({}); save(); render(); } }, '기본값으로'))),
@@ -1437,7 +1465,7 @@
             var keys = []; db.works.forEach(function (w) { w.images.forEach(function (p) { keys.push(p.key); }); });
             var imgs = {};
             Promise.all(keys.map(function (k) { return window.QWImages.get(k).then(function (u) { if (u) imgs[k] = u; }); })).then(function () {
-              download('품질업무자료화_백업_' + today() + '.json', new Blob([JSON.stringify(Object.assign({}, db, { images: imgs }))], { type: 'application/json' }));
+              download('품질업무자료도우미_백업_' + today() + '.json', new Blob([JSON.stringify(Object.assign({}, db, { images: imgs }))], { type: 'application/json' }));
             });
           } }, 'JSON 백업 내려받기'),
           h('label', { class: 'btn' }, backup, 'JSON 백업 불러오기')))];
@@ -1445,22 +1473,24 @@
 
   /* ── 라우터 ─────────────────────────────── */
   var PAGES = [
-    { id: 'work', no: '①', t: '업무 · 자료 넣기', s: '자료 · 캡처 · 사진', fn: pageWork },
-    { id: 'interview', no: '②', t: '담당자 인터뷰', s: '질문 · 답 · 말로 한 설명', fn: pageInterview },
-    { id: 'draft', no: '③', t: '초안 만들기', s: 'AI 초안 · 근거 · 담당자 확인', fn: pageDraft },
-    { id: 'export', no: '④', t: '내보내기', s: '업무 방법서 · 단계표 · 체크리스트', fn: pageExport },
-    { id: 'import', no: '·', t: '업무 목록 가져오기', s: '52가지 업무 · 문서 목록 엑셀', fn: pageImport, group: '기존 도구 (1단계)' },
-    { id: 'core', no: '·', t: '핵심 업무 선정', s: '점수 · 10~15개', fn: pageCore },
-    { id: 'docs', no: '·', t: '문서 맵', s: '연결표 · 누락 체크리스트', fn: pageDocs },
-    { id: 'flow', no: '·', t: '업무 흐름도', s: '단계 표 → 직책별 흐름도', fn: pageFlow },
-    { id: 'edu', no: '·', t: '신입 교육', s: '커리큘럼 · 교육 한 장', fn: pageEdu },
-    { id: 'settings', no: '설', t: '설정', s: '기준 · AI · 백업', fn: pageSettings, group: '' }
+    { id: 'work', no: '①', t: '자료 등록하기', s: '자료 · 캡처 · 사진', fn: pageWork },
+    { id: 'interview', no: '②', t: '담당자에게 질문하기', s: '질문 · 답 · 말로 한 설명', fn: pageInterview },
+    { id: 'draft', no: '③', t: 'AI 초안 작성', s: 'AI 초안 · 근거 · 담당자 확인', fn: pageDraft },
+    { id: 'export', no: '④', t: '문서로 내보내기', s: '업무 방법서 · 단계표 · 체크리스트', fn: pageExport },
+    { id: 'edu', no: '⑤', t: '신입 교육 자료 만들기', s: '교육 한 장 · 커리큘럼', fn: pageEdu },
+    { id: 'settings', no: '설', t: '설정', s: '교육 기간 · AI · 백업', fn: pageSettings, group: '' },
+    /* 2026-11-10 메뉴에서 뺀 1단계 화면 — 메뉴에는 없고 주소로만 열립니다(저장된 업무 목록 · 문서 · 흐름도는 그대로) */
+    { id: 'import', no: '·', t: '업무 목록 가져오기', s: '', fn: pageImport, hidden: true },
+    { id: 'core', no: '·', t: '핵심 업무 선정', s: '', fn: pageCore, hidden: true },
+    { id: 'docs', no: '·', t: '문서 맵', s: '', fn: pageDocs, hidden: true },
+    { id: 'flow', no: '·', t: '업무 흐름도', s: '', fn: pageFlow, hidden: true }
   ];
   function route() { var id = (location.hash || '').replace(/^#\//, '').split('?')[0]; return PAGES.filter(function (p) { return p.id === id; })[0] || PAGES[0]; }
   function render() {
     var p = route();
     var nav = document.getElementById('nav'); nav.innerHTML = '';
     PAGES.forEach(function (x) {
+      if (x.hidden) return;
       if (x.group != null) nav.appendChild(h('div', { class: 'nav-group' + (x.group ? '' : ' empty') }, x.group));
       nav.appendChild(h('a', { href: '#/' + x.id, 'aria-current': x === p ? 'page' : null }, h('span', { class: 'no' }, x.no), h('span', { class: 't' }, x.t), h('span', { class: 's' }, x.s)));
     });
@@ -1472,13 +1502,13 @@
     var b = document.getElementById('sampleBanner'), SCn = window.QWSampleCapture && window.QWSampleCapture.NAME;
     var sw = !db.sample && db.sampleWorks && db.works.some(function (x) { return x.name === SCn; });
     b.hidden = !db.sample && !sw;
-    b.textContent = db.sample ? '지금 보시는 것은 가상 샘플입니다 — 「수입검사 부적합품 처리」의 절차서 · 체크리스트 · 시스템 입력 항목 · 화면 그림 · 담당자 답변 · AI 답은 모두 지어낸 예시이고, 기존 도구의 업무 52개 · 문서 24개 · 흐름도 3개도 가상입니다. 내 업무 목록은 ① 화면의 「업무 목록 파일로 바꾸기」로 넣어 주세요.'
+    b.textContent = db.sample ? '지금 보시는 것은 가상 샘플입니다 — 「수입검사 부적합품 처리」의 절차서 · 체크리스트 · 시스템 입력 항목 · 화면 그림 · 담당자 답변 · AI 답은 모두 지어낸 예시이고, 업무 목록 52개 · 문서 24개 · 흐름도 3개도 가상입니다. 내 업무 목록은 ① 화면의 「업무 목록 파일로 바꾸기」로 넣어 주세요.'
       : '업무 목록은 내 것으로 바꿨습니다. 업무 자료화의 「' + SCn + '」는 아직 가상 샘플(지어낸 자료 · 답변 · 초안)입니다 — 필요 없으면 ① 화면에서 그 업무를 지워 주세요.';
     main.innerHTML = '';
     add(main, p.fn());
     if (p.id === 'edu') fillPaperFlow(taskById(ui.eduTask));
     if (p.id === 'draft') fillCapFlow();
-    document.title = p.t + ' — 품질 업무 자료화';
+    document.title = p.t + ' — 품질 업무 자료 도우미';
     save();
   }
   window.addEventListener('hashchange', function () { render(); main.focus(); window.scrollTo(0, 0); });

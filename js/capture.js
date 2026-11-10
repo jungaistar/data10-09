@@ -4,7 +4,7 @@
 
    흐름: 업무 하나(work) 고르기/만들기
         → 자료 넣기(materials: 붙여 넣기 · txt · docx · xlsx, 사진 · 캡처 images)   — id M1 · M2 … / P1 · P2 …
-        → 담당자 인터뷰(questions · answers, 말로 한 설명 transcripts)           — id Q1 … / T1 …
+        → 담당자에게 질문하기(questions · answers, 말로 한 설명 transcripts)           — id Q1 … / T1 …
         → 초안 프롬프트(draftPrompt) → 회사가 허용한 AI → 답(JSON) 붙여 넣기 → parseDraftAnswer(검사 · 근거 표시)
         → 판(versions) 저장 · 단계마다 「담당자 확인」 → 내보내기(Word 업무 방법서 · Excel 단계표 · 인수인계 체크리스트 · 1장 요약)
    근거 표시: 단계마다 AI 가 적은 refs(M · P = 문서, Q · T = 담당자 답변)를 실제 있는 id 로만 인정하고,
@@ -15,7 +15,7 @@
 })(typeof self !== 'undefined' ? self : this, function (L) {
   'use strict';
   /* 판 — logic.js · app.js 와 같아야 합니다(scripts/bump-version.mjs 가 함께 올림) */
-  var VERSION = '2026-10-28.2';
+  var VERSION = '2026-11-10.1';
   var SCHEMA = 2;
 
   function str(v) { return v == null ? '' : String(v).trim(); }
@@ -250,10 +250,10 @@
     work.materials.push(c); work.updated = str(today) || work.updated;
     return c;
   }
-  /* 기존 1단계 흐름도(단계 표) → 「업무 순서 자료」 글 — 이미 만든 흐름도를 자료로 다시 씁니다 */
+  /* 전에 만든 흐름도(단계 표) → 「업무 순서 자료」 글 — 이미 만든 흐름도를 자료로 다시 씁니다 */
   function flowToMaterialText(task, flow) {
     var steps = arr(flow && flow.steps);
-    var lines = ['[1단계 도구에서 만든 단계 표] ' + str(task && task.name)];
+    var lines = ['[전에 만든 흐름도 단계 표] ' + str(task && task.name)];
     steps.forEach(function (s, i) {
       var t = (i + 1) + '. ' + (s.name || s.question) + (s.role ? ' (담당: ' + s.role + ')' : '');
       if (s.inputs) t += ' · 입력: ' + s.inputs;

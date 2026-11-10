@@ -195,14 +195,14 @@ test('xlsx — 시트마다 줄 · 칸을 「 | 」로, 빈 줄 · 빈 시트는
   const back = XLSX.read(XLSX.write(wb, { type: 'array', bookType: 'xlsx' }), { type: 'array' });
   assert.equal(C.xlsxText(back, XLSX), '[시트: 부적합 등록]\n메뉴 | 품질관리 > 부적합\n품번 | 필수');
 });
-test('파일 종류 · 자료 종류 짐작 · 1단계 흐름도 → 업무 순서 자료', () => {
+test('파일 종류 · 자료 종류 짐작 · 전에 만든 흐름도 → 업무 순서 자료', () => {
   assert.deepEqual(['a.TXT', 'b.docx', 'c.xlsx', 'd.pdf', 'e.jpg', 'f.hwp', 'g.zip'].map(C.fileKind), ['text', 'docx', 'xlsx', 'pdf', 'image', 'unsupported', 'unknown']);
   assert.equal(C.guessMaterialKind('출하검사 체크리스트', ''), '체크리스트');
   assert.equal(C.guessMaterialKind('부적합품 관리 절차서', ''), '절차서');
   assert.equal(C.guessMaterialKind('메모', '품질시스템 입력 화면 메뉴'), '시스템 입력 항목');
   const db = Sample.buildDb(L), t = db.tasks.find(x => x.name === '부적합품 처리');
   const txt = C.flowToMaterialText(t, db.flows[t.id]);
-  assert.ok(txt.startsWith('[1단계 도구에서 만든 단계 표] 부적합품 처리'));
+  assert.ok(txt.startsWith('[전에 만든 흐름도 단계 표] 부적합품 처리'));
   assert.ok(/판단: 재작업이 가능한가\?|판단: .+\?/.test(txt)); assert.ok(txt.includes('[근거 문단]'));
 });
 
