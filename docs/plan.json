@@ -38,7 +38,24 @@
    "team": "품질보증팀",
    "logo": "images/logo.png",
    "logoH": 40
-  }
+  },
+  "slides": [
+   {
+    "image": "images/slide-1.jpg",
+    "tone": "light",
+    "caption": "건화 본사"
+   },
+   {
+    "image": "images/slide-2.jpg",
+    "tone": "light"
+   },
+   {
+    "image": "images/slide-3.jpg",
+    "tone": "light",
+    "caption": "용접 현장"
+   }
+  ],
+  "heroMode": "slide"
  },
  "background": [
   "품질보증팀의 업무 정보와 담당자의 경험 · 판단 기준이 여러 문서와 구두 설명에 흩어져 있습니다.",
