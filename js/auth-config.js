@@ -201,7 +201,19 @@ window.AUTH_CONFIG = {
         "team": "품질보증팀",
         "logo": "images/logo.png",
         "logoH": 40
-      }
+      },
+      "slides": [
+        {
+          "image": "images/slide-1.jpg"
+        },
+        {
+          "image": "images/slide-2.jpg"
+        },
+        {
+          "image": "images/slide-3.jpg"
+        }
+      ],
+      "heroMode": "slide"
     }
   }
 };
