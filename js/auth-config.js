@@ -197,7 +197,9 @@ window.AUTH_CONFIG = {
       "company": {
         "name": "건화",
         "en": "KUNHWA",
-        "team": "품질보증팀"
+        "team": "품질보증팀",
+        "logo": "images/logo.png",
+        "logoH": 40
       }
     }
   }
