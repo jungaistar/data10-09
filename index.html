@@ -4,6 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>품질 업무 자료 도우미</title>
+  <!-- seo-kit: 공유 미리보기 · 아이콘(주소를 옮기면 아래 주소 3곳을 내 주소로) -->
+  <link rel="canonical" href="https://data10-09.jobability.co.kr/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="건화">
+  <meta property="og:title" content="건화 · 품질 업무 자료 도우미">
+  <meta property="og:description" content="절차서 · 체크리스트 같은 업무 자료와 담당자의 설명 · 경험을 모아 업무 흐름도와 단계별 업무 방법서 초안을 만들고, 근거가 있는 부분과 확인이 필요한 부분을 나눠 보여 주는 도구입니다.">
+  <meta property="og:url" content="https://data10-09.jobability.co.kr/">
+  <meta property="og:image" content="https://data10-09.jobability.co.kr/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <!-- /seo-kit -->
   <meta name="description" content="품질보증팀의 업무 자료와 담당자 경험(암묵지)을 모아, AI 로 업무 프로세스 흐름도와 단계별 업무 방법서 초안을 만드는 브라우저 도구 — 근거 표시 · 담당자 확인 · 인수인계 체크리스트 · 신입 교육 자료">
   <meta name="robots" content="noindex">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230f2544'/%3E%3Crect x='6' y='6' width='9' height='6' rx='1.5' fill='%238fb8ff'/%3E%3Cpath d='M23 13l5 5-5 5-5-5z' fill='%23ffd27a'/%3E%3Crect x='6' y='20' width='9' height='6' rx='1.5' fill='%238fb8ff'/%3E%3Cpath d='M10.5 12v8M15 23h3' stroke='%23e7eef8' stroke-width='1.5'/%3E%3C/svg%3E">
@@ -18,11 +30,11 @@
        탭 전환·포커스로는 옮기지 않는다(입력 유실). ETag 는 Cloudflare 가 지워서 쓸 수 없다. 원본: dreamit-1000/scripts/fresh-guard/guard.html
        data10-09: file:// 로 열면(사내 PC 에서 index.html 더블클릭) 아무것도 하지 않는다 — file 주소는 fetch 를 못 해 콘솔 오류만 남기 때문(2026-10-28, data10-07 과 같음). -->
   <script>(function(){try{var L=location,P='_fg',h=window.history,q=L.search;if(L.protocol==='file:')return;if(/[?&]_fg=/.test(q)&&h&&h.replaceState){q=q.replace(/([?&])_fg=[^&]*&?/,'$1').replace(/[?&]$/,'');h.replaceState(h.state,'',L.pathname+q+L.hash);}var d=Date.parse(document.lastModified),u=L.pathname+L.search,k='__fresh_guard',t=0;if(!d||!window.fetch||!window.sessionStorage)return;var g=function(s,v){return s+(s.indexOf('?')<0?'?':'&')+P+'='+v;};var c=function(){var n=Date.now();if(n-t<15000)return;t=n;fetch(g(u,n),{method:'HEAD',cache:'no-store'}).then(function(r){var lm=r.headers.get('last-modified'),f=lm&&Date.parse(lm);if(!f||f<=d+1000)return;if(sessionStorage.getItem(k)===lm)return;sessionStorage.setItem(k,lm);L.replace(g(L.pathname+L.search,f)+L.hash);})['catch'](function(){});};c();var p=h&&h.pushState;if(p)h.pushState=function(){var x=p.apply(this,arguments);c();return x;};addEventListener('hashchange',c);addEventListener('popstate',c);}catch(e){}})();</script>
-  <link rel="stylesheet" href="css/style.css?v=2026-11-11.6">
+  <link rel="stylesheet" href="css/style.css?v=2026-11-11.7">
   <!-- auth-kit: 로그인 전에는 도구 화면을 감춘다(js/auth.js 가 판정 뒤 푼다) -->
   <script>document.documentElement.classList.add('auth-lock')</script>
-  <link rel="stylesheet" href="css/auth.css?v=2026-11-11.6">
-  <link rel="stylesheet" href="css/board.css?v=2026-11-11.6">
+  <link rel="stylesheet" href="css/auth.css?v=2026-11-11.7">
+  <link rel="stylesheet" href="css/board.css?v=2026-11-11.7">
   <!-- /auth-kit -->
 </head>
 <body>
@@ -55,20 +67,20 @@
   <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
   <!-- 로컬 파일(file://)로 열어도 돌도록 module 이 아닌 일반 스크립트로 불러옵니다 -->
-  <script src="vendor/xlsx.full.min.js?v=2026-11-11.6"></script>
-  <script src="js/logic.js?v=2026-11-11.6"></script>
-  <script src="js/capture.js?v=2026-11-11.6"></script>
-  <script src="js/sample-data.js?v=2026-11-11.6"></script>
-  <script src="js/sample-capture.js?v=2026-11-11.6"></script>
-  <script src="js/store.js?v=2026-11-11.6"></script>
-  <script src="js/ai-endpoint.js?v=2026-11-11.6"></script>
-  <script src="js/ai-panel.js?v=2026-11-11.6"></script>
-  <script src="js/app.js?v=2026-11-11.6"></script>
+  <script src="vendor/xlsx.full.min.js?v=2026-11-11.7"></script>
+  <script src="js/logic.js?v=2026-11-11.7"></script>
+  <script src="js/capture.js?v=2026-11-11.7"></script>
+  <script src="js/sample-data.js?v=2026-11-11.7"></script>
+  <script src="js/sample-capture.js?v=2026-11-11.7"></script>
+  <script src="js/store.js?v=2026-11-11.7"></script>
+  <script src="js/ai-endpoint.js?v=2026-11-11.7"></script>
+  <script src="js/ai-panel.js?v=2026-11-11.7"></script>
+  <script src="js/app.js?v=2026-11-11.7"></script>
   <!-- auth-kit: 로그인 · 사용 신청 · 승인(정본 data10-00/kit/auth) -->
-  <script src="vendor/supabase.js?v=2026-11-11.6"></script>
-  <script src="js/auth-config.js?v=2026-11-11.6"></script>
-  <script src="js/board.js?v=2026-11-11.6"></script>
-  <script src="js/auth.js?v=2026-11-11.6"></script>
+  <script src="vendor/supabase.js?v=2026-11-11.7"></script>
+  <script src="js/auth-config.js?v=2026-11-11.7"></script>
+  <script src="js/board.js?v=2026-11-11.7"></script>
+  <script src="js/auth.js?v=2026-11-11.7"></script>
   <!-- /auth-kit -->
 </body>
 </html>
