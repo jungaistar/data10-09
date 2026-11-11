@@ -8,6 +8,7 @@ window.AUTH_CONFIG = {
   "kakao": true,
   "idleMinutes": 30,
   "localBypass": true,
+  "board": true,
   "site": {
     "title": "품질 업무 자료 도우미",
     "summary": "절차서 · 체크리스트 같은 업무 자료와 담당자의 설명 · 경험을 모아 업무 흐름도와 단계별 업무 방법서 초안을 만들고, 근거가 있는 부분과 확인이 필요한 부분을 나눠 보여 주는 도구입니다.",
