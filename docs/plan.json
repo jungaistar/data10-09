@@ -42,7 +42,8 @@
   "slides": [
    {
     "image": "images/slide-1.jpg",
-    "tone": "light"
+    "tone": "light",
+    "anim": "images/slide-1.gif"
    },
    {
     "image": "images/slide-2.jpg",
