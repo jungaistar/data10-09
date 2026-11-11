@@ -205,8 +205,7 @@ window.AUTH_CONFIG = {
       "slides": [
         {
           "image": "images/slide-1.jpg",
-          "tone": "light",
-          "caption": "건화 본사"
+          "tone": "light"
         },
         {
           "image": "images/slide-2.jpg",

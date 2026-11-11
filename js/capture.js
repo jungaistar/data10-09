@@ -15,7 +15,7 @@
 })(typeof self !== 'undefined' ? self : this, function (L) {
   'use strict';
   /* 판 — logic.js · app.js 와 같아야 합니다(scripts/bump-version.mjs 가 함께 올림) */
-  var VERSION = '2026-11-11.5';
+  var VERSION = '2026-11-11.6';
   var SCHEMA = 2;
 
   function str(v) { return v == null ? '' : String(v).trim(); }
